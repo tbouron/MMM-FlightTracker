@@ -1,0 +1,47 @@
+.label {
+    margin: 0.5em 0 0.25em 0;
+    text-transform: uppercase;
+}
+
+.plane {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 10px;
+    align-items: center;
+}
+.plane > i {
+    flex-shrink: 0;
+    margin-right: 10px;
+}
+.plane > div {
+    flex-grow: 1;
+}
+
+.plane-content {
+    display: flex;
+    flex-direction: column;
+}
+.plane-content > div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+.plane-content > div:first-child > span:first-child {
+    margin-right: 15px;
+}
+.plane-content > div:nth-child(2) > span:nth-child(1+n) {
+    margin-left: 10px;
+}
+
+/*.plane-id {*/
+/*    flex-shrink: 0;*/
+/*}*/
+/*.plane-metadata {*/
+/*    flex-grow: 1;*/
+/*}*/
+
+/*.plane-id, .plane-metadata {*/
+/*    display: flex;*/
+/*    flex-direction: column;*/
+/*}*/
