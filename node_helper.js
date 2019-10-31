@@ -126,8 +126,8 @@ module.exports = NodeHelper.create({
                     }
                 }
 
-                // Convert altitude to meters
-                const altitude = aircraft.altitude / (aircraft.unit === Decoder.UNIT_FEET ? 3.2808 : 1);
+                // Convert altitude to feet
+                const altitude = aircraft.altitude * (aircraft.unit === Decoder.UNIT_METERS ? 3.2808399 : 1);
                 return {
                     ...aircraft,
                     altitude

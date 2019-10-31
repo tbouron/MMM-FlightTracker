@@ -4,8 +4,9 @@ Module.register('MMM-FlightTracker', {
         interval: 1,
         animationSpeed: 1000,
         passingByThreshold: -1,
-        latLng: []
-        // TODO: Make unit configurable for altitude
+        latLng: [],
+        altitudeUnits: config.units,
+        speedUnits: config.units
     },
 
     aircrafts: [],
@@ -125,8 +126,8 @@ Module.register('MMM-FlightTracker', {
             const flightMetadata = document.createElement('div');
             flightMetadata.className = 'plane-content-metadata xsmall dimmed';
             let metadata = [
-                `<span><span class="bright">${Math.floor(aircraft.speed)}</span> kn</span>`,
-                `<span><span class="bright">${Math.floor(aircraft.altitude)}</span> m</span>`,
+                `<span><span class="bright">${Math.floor(this.config.speedUnits === 'metric' ? aircraft.speed*1.852 : aircraft.speed)}</span> ${this.config.speedUnits === 'metric' ? 'km/s' : 'kn'}</span>`,
+                `<span><span class="bright">${Math.floor(this.config.altitudeUnits === 'metric' ? aircraft.altitude/3.2808399 : aircraft.altitude)}</span> ${this.config.altitudeUnits === 'metric' ? 'm' : 'ft'}</span>`,
                 `<span><span class="bright">${Math.floor(aircraft.heading)}</span>°</span>`
             ];
             if (aircraft.type) {
