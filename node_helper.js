@@ -12,7 +12,7 @@ module.exports = NodeHelper.create({
     isStarted: null,
 
     start: function() {
-        console.log('Initialising ADS-B device...');
+        console.log('Initialising ADS-B device ...');
 
         try {
             rtlsdr.start([]);
@@ -75,44 +75,65 @@ module.exports = NodeHelper.create({
         rtlsdr.stop();
     },
 
-    socketNotificationReceived: function (id) {
+    socketNotificationReceived: function (id, payload) {
         if (id === 'GET_IS_STARTED') {
             this.sendSocketNotification('SET_IS_STARTED', this.isStarted);
         }
-        if (id === 'GET_PLANES') {
-            this.trackPlanes();
+        if (id === 'GET_AIRCRAFTS') {
+            this.trackAircrafts(payload);
         }
     },
 
-    trackPlanes: function() {
-        const planes = store.getAircrafts()
+    trackAircrafts: function(config) {
+        const aircrafts = store.getAircrafts()
             .filter(aircraft => aircraft.lat > 0 && aircraft.callsign)
             .map(aircraft => {
-                const airline = this.airlines.find(airline => airline.icao === aircraft.callsign.substr(0, 3));
-                let airlineName = [];
-                if (airline) {
-                    airlineName.push(airline.alias || airline.name);
-                    if (!airline.active) {
-                        airlineName.push('*');
-                    }
-                } else {
-                    airline.push('Unknown');
-                }
-
                 const icao = parseInt(aircraft.icao, 10).toString(16);
                 const plane = this.aircrafts.find(plane => plane.icao === icao);
-                if (plane && plane.operator) {
-                    airlineName = [plane.operator];
+                const airline = this.airlines.find(airline => airline.icao === aircraft.callsign.substr(0, 3));
+
+                // Find out airline name
+                if (!aircraft.hasOwnProperty('airline')) {
+                    let airlineName = [];
+                    if (airline) {
+                        airlineName.push(airline.alias || airline.name);
+                        if (!airline.active) {
+                            airlineName.push('*');
+                        }
+                    } else {
+                        airlineName.push('Unknown');
+                    }
+                    if (plane && plane.operator) {
+                        airlineName = [plane.operator];
+                    }
+                    aircraft.airline = airlineName.join('');
                 }
 
+                // Find out plane type
+                if (!aircraft.hasOwnProperty('type') && plane && plane.type) {
+                    aircraft.type = plane.type;
+                }
+
+                // Find out context
+                if (!aircraft.hasOwnProperty('context')) {
+                    aircraft.context = 'PASSING_BY';
+                    if (config.passingByThreshold > 0 && aircraft.altitude < config.passingByThreshold && config.latLng.length > 0) {
+                        if (config.latLng[0] > aircraft.lat) {
+                            aircraft.context = 'LANDING';
+                        } else {
+                            aircraft.context = 'TAKING_OFF';
+                        }
+                    }
+                }
+
+                // Convert altitude to meters
+                const altitude = aircraft.altitude / (aircraft.unit === Decoder.UNIT_FEET ? 3.2808 : 1);
                 return {
                     ...aircraft,
-                    type: plane && plane.type,
-                    altitude: aircraft.altitude / (aircraft.unit === Decoder.UNIT_FEET ? 3.2808 : 1),
-                    airline: airlineName.join('')
+                    altitude
                 };
             }) || [];
 
-        this.sendSocketNotification('SET_PLANES', planes);
+        this.sendSocketNotification('SET_AIRCRAFTS', aircrafts);
     }
 });
