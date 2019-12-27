@@ -126,7 +126,7 @@ Module.register('MMM-FlightTracker', {
             const flightMetadata = document.createElement('div');
             flightMetadata.className = 'plane-content-metadata xsmall dimmed';
             let metadata = [
-                `<span><span class="bright">${Math.floor(this.config.speedUnits === 'metric' ? aircraft.speed*1.852 : aircraft.speed)}</span> ${this.config.speedUnits === 'metric' ? 'km/s' : 'kn'}</span>`,
+                `<span><span class="bright">${Math.floor(this.config.speedUnits === 'metric' ? aircraft.speed*1.852 : aircraft.speed)}</span> ${this.config.speedUnits === 'metric' ? 'km/h' : 'kn'}</span>`,
                 `<span><span class="bright">${Math.floor(this.config.altitudeUnits === 'metric' ? aircraft.altitude/3.2808399 : aircraft.altitude)}</span> ${this.config.altitudeUnits === 'metric' ? 'm' : 'ft'}</span>`,
                 `<span><span class="bright">${Math.floor(aircraft.heading)}</span>°</span>`
             ];
