@@ -9,6 +9,7 @@ const path = require('path');
 module.exports = NodeHelper.create({
     airlines: [],
     aircrafts: [],
+    altitudes: {},
     isStarted: null,
 
     start: function() {
@@ -114,20 +115,28 @@ module.exports = NodeHelper.create({
                     aircraft.type = plane.type;
                 }
 
+                // Convert altitude
+                const altitude = aircraft.altitude * (aircraft.unit === Decoder.UNIT_METERS ? 3.2808399 : 1);
+
                 // Find out context
                 if (!aircraft.hasOwnProperty('context')) {
-                    aircraft.context = 'PASSING_BY';
-                    if (config.passingByThreshold > 0 && aircraft.altitude < config.passingByThreshold && config.latLng.length > 0) {
-                        if (config.latLng[0] > aircraft.lat) {
+                    if (!config.passingByThreshold || config.passingByThreshold <= 0) {
+                        aircraft.context = 'PASSING_BY';
+                    } else if (config.passingByThreshold > 0 && altitude > config.passingByThreshold) {
+                        aircraft.context = 'PASSING_BY';
+                    } else if (config.passingByThreshold > 0 && altitude < config.passingByThreshold) {
+                        if (!this.altitudes.hasOwnProperty(aircraft.icao)) {
+                            this.altitudes[aircraft.icao] = altitude;
+                        } else if (this.altitudes[aircraft.icao] > altitude) {
                             aircraft.context = 'LANDING';
-                        } else {
+                            this.altitudes[aircraft.icao] = undefined;
+                        } else if (this.altitudes[aircraft.icao] < altitude) {
                             aircraft.context = 'TAKING_OFF';
+                            this.altitudes[aircraft.icao] = undefined;
                         }
                     }
                 }
 
-                // Convert altitude to feet
-                const altitude = aircraft.altitude * (aircraft.unit === Decoder.UNIT_METERS ? 3.2808399 : 1);
                 return {
                     ...aircraft,
                     altitude
