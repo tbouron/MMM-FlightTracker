@@ -10,7 +10,7 @@ Module.register('MMM-FlightTracker', {
     },
 
     aircrafts: [],
-    isStarted: null,
+    isConnected: null,
 
     start: function() {
         this.sendSocketNotification('START_TRACKING', this.config.client);
@@ -29,8 +29,8 @@ Module.register('MMM-FlightTracker', {
     },
 
     socketNotificationReceived: function (id, payload) {
-        if (id === 'SET_IS_STARTED') {
-            this.isStarted = payload;
+        if (id === 'SET_IS_CONNECTED') {
+            this.isConnected = payload;
             this.updateDom(this.config.animationSpeed);
         }
         if (id === 'SET_AIRCRAFTS') {
@@ -41,9 +41,9 @@ Module.register('MMM-FlightTracker', {
     },
 
     trackPlanes: function() {
-        if (this.isStarted === null) {
-            Log.log('Node helper not started yet. Waiting...');
-            this.sendSocketNotification('GET_IS_STARTED');
+        if (this.isConnected === null) {
+            Log.log('Node helper not connected yet to the ADS-B client. Waiting...');
+            this.sendSocketNotification('GET_IS_CONNECTED');
         } else {
             this.sendSocketNotification('GET_AIRCRAFTS', this.config);
         }
@@ -53,12 +53,12 @@ Module.register('MMM-FlightTracker', {
         const wrapper = document.createElement('div');
         wrapper.className = 'flight-tracker';
 
-        if (this.isStarted === null) {
+        if (this.isConnected === null) {
             wrapper.className = 'light small dimmed';
-            wrapper.innerHTML = this.translate('Starting tracker');
+            wrapper.innerHTML = this.translate('Connecting tracker');
             return wrapper;
         }
-        if (this.isStarted === false) {
+        if (this.isConnected === false) {
             wrapper.className = 'light small dimmed';
             wrapper.innerHTML = this.translate('Failed to start. Please check the logs');
             return wrapper;

@@ -1,7 +1,6 @@
 const NodeHelper = require('node_helper');
 const Decoder = require('mode-s-decoder');
-const store = require('./lib/store');
-const adsb = require('./lib/adsb');
+const Adsb = require('./lib/adsb');
 const parse = require('csv-parse');
 const fs = require('fs');
 const path = require('path');
@@ -11,9 +10,12 @@ module.exports = NodeHelper.create({
     aircrafts: [],
     altitudes: {},
     clients: [],
-    isStarted: null,
+    isConnected: null,
+    adsb: null,
 
     init: function() {
+        this.adsb = new Adsb();
+
         const airlineParser = parse({
             delimiter: ',',
             columns: ['id', 'name', 'alias', 'iata', 'icao', 'callsign', 'country', 'active']
@@ -63,15 +65,15 @@ module.exports = NodeHelper.create({
 
     stop: function() {
         console.log('Closing down ADS-B client ...');
-        adsb.stop();
+        this.adsb.stop();
     },
 
     socketNotificationReceived: function (id, payload) {
         if (id === 'START_TRACKING') {
             this.startTracking(payload);
         }
-        if (id === 'GET_IS_STARTED') {
-            this.sendSocketNotification('SET_IS_STARTED', this.isStarted);
+        if (id === 'GET_IS_CONNECTED') {
+            this.sendSocketNotification('SET_IS_CONNECTED', this.isConnected);
         }
         if (id === 'GET_AIRCRAFTS') {
             this.trackAircrafts(payload);
@@ -81,7 +83,7 @@ module.exports = NodeHelper.create({
     startTracking: function(config) {
         if (this.clients.includes(JSON.stringify(config))) {
             console.log('An instance of ADS-B client with the same configuration already exists. Skipping ...');
-            this.isStarted = true;
+            this.isConnected = true;
             return;
         }
 
@@ -89,17 +91,23 @@ module.exports = NodeHelper.create({
         this.clients.push(JSON.stringify(config));
 
         try {
-            adsb.start(config);
-            this.isStarted = true;
+            this.adsb.on('socket-closed', () => {
+                this.isConnected = null;
+                this.sendSocketNotification('SET_IS_CONNECTED', this.isConnected);
+            }).on('socket-opened', () => {
+                this.isConnected = true;
+                this.sendSocketNotification('SET_IS_CONNECTED', this.isConnected);
+            }).start(config);
+            this.isConnected = true;
         } catch (e) {
             console.error('Failed to initialised ADS-B client', e);
             this.clients.pop();
-            this.isStarted = false;
+            this.isConnected = false;
         }
     },
 
     trackAircrafts: function(config) {
-        const aircrafts = store.getAircrafts()
+        const aircrafts = this.adsb.getStore().getAircrafts()
             .filter(aircraft => aircraft.callsign)
             .map(aircraft => {
                 const icao = parseInt(aircraft.icao, 10).toString(16);
