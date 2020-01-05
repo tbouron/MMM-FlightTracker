@@ -1,7 +1,7 @@
 const NodeHelper = require('node_helper');
 const Decoder = require('mode-s-decoder');
 const store = require('./lib/store');
-const rtlsdr = require('./lib/rtlsdr');
+const adsb = require('./lib/adsb');
 const parse = require('csv-parse');
 const fs = require('fs');
 const path = require('path');
@@ -10,73 +10,66 @@ module.exports = NodeHelper.create({
     airlines: [],
     aircrafts: [],
     altitudes: {},
+    clients: [],
     isStarted: null,
 
-    start: function() {
-        console.log('Initialising ADS-B device ...');
+    init: function() {
+        const airlineParser = parse({
+            delimiter: ',',
+            columns: ['id', 'name', 'alias', 'iata', 'icao', 'callsign', 'country', 'active']
+        });
+        const aircraftsParser = parse({
+            delimiter: ',',
+            columns: ['icao', 'regid', 'mdl', 'type', 'operator']
+        });
 
-        try {
-            rtlsdr.start([]);
-
-            const airlineParser = parse({
-                delimiter: ',',
-                columns: ['id', 'name', 'alias', 'iata', 'icao', 'callsign', 'country', 'active']
-            });
-            const aircraftsParser = parse({
-                delimiter: ',',
-                columns: ['icao', 'regid', 'mdl', 'type', 'operator']
-            });
-
-            fs.createReadStream(path.join(__dirname, 'data', 'airlines.csv'))
-                .pipe(airlineParser)
-                .on('error', err => {
-                    console.error(err);
-                })
-                .on('data', row => {
-                    Object.keys(row).forEach(key => {
-                        if (row[key] === '\\N') {
-                            row[key] = null
-                        }
-                    });
-                    row.id = Number.parseInt(row.id, 10);
-                    row.active = row.active === 'Y';
-
-                    this.airlines.push(row);
-                })
-                .on('end', () => {
-                    console.log('Airlines DB loaded');
+        fs.createReadStream(path.join(__dirname, 'data', 'airlines.csv'))
+            .pipe(airlineParser)
+            .on('error', err => {
+                console.error(err);
+            })
+            .on('data', row => {
+                Object.keys(row).forEach(key => {
+                    if (row[key] === '\\N') {
+                        row[key] = null
+                    }
                 });
+                row.id = Number.parseInt(row.id, 10);
+                row.active = row.active === 'Y';
 
-            fs.createReadStream(path.join(__dirname, 'data', 'aircrafts.csv'))
-                .pipe(aircraftsParser)
-                .on('error', err => {
-                    console.error(err);
-                })
-                .on('data', row => {
-                    Object.keys(row).forEach(key => {
-                        if (row[key] === '') {
-                            row[key] = null
-                        }
-                    });
-                    this.aircrafts.push(row);
-                })
-                .on('end', () => {
-                    console.log('Aircrafts DB loaded');
+                this.airlines.push(row);
+            })
+            .on('end', () => {
+                console.log('Airlines DB loaded');
+            });
+
+        fs.createReadStream(path.join(__dirname, 'data', 'aircrafts.csv'))
+            .pipe(aircraftsParser)
+            .on('error', err => {
+                console.error(err);
+            })
+            .on('data', row => {
+                Object.keys(row).forEach(key => {
+                    if (row[key] === '') {
+                        row[key] = null
+                    }
                 });
-
-            this.isStarted = true;
-        } catch (e) {
-            console.error('Failed to initialised ADS-B hardware', e);
-            this.isStarted = false;
-        }
+                this.aircrafts.push(row);
+            })
+            .on('end', () => {
+                console.log('Aircrafts DB loaded');
+            });
     },
 
     stop: function() {
-        console.log('Closing down ADS-B device...');
-        rtlsdr.stop();
+        console.log('Closing down ADS-B client ...');
+        adsb.stop();
     },
 
     socketNotificationReceived: function (id, payload) {
+        if (id === 'START_TRACKING') {
+            this.startTracking(payload);
+        }
         if (id === 'GET_IS_STARTED') {
             this.sendSocketNotification('SET_IS_STARTED', this.isStarted);
         }
@@ -85,9 +78,29 @@ module.exports = NodeHelper.create({
         }
     },
 
+    startTracking: function(config) {
+        if (this.clients.includes(JSON.stringify(config))) {
+            console.log('An instance of ADS-B client with the same configuration already exists. Skipping ...');
+            this.isStarted = true;
+            return;
+        }
+
+        console.log('Initialising ADS-B client ...');
+        this.clients.push(JSON.stringify(config));
+
+        try {
+            adsb.start(config);
+            this.isStarted = true;
+        } catch (e) {
+            console.error('Failed to initialised ADS-B client', e);
+            this.clients.pop();
+            this.isStarted = false;
+        }
+    },
+
     trackAircrafts: function(config) {
         const aircrafts = store.getAircrafts()
-            .filter(aircraft => aircraft.lat > 0 && aircraft.callsign)
+            .filter(aircraft => aircraft.callsign)
             .map(aircraft => {
                 const icao = parseInt(aircraft.icao, 10).toString(16);
                 const plane = this.aircrafts.find(plane => plane.icao === icao);

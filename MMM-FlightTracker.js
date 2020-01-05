@@ -13,10 +13,10 @@ Module.register('MMM-FlightTracker', {
     isStarted: null,
 
     start: function() {
-        var self = this;
-        self.trackPlanes();
-        setInterval(function () {
-            self.trackPlanes();
+        this.sendSocketNotification('START_TRACKING', this.config.client);
+        this.trackPlanes();
+        setInterval(() => {
+            this.trackPlanes();
         }, this.config.interval * 1000);
     },
 

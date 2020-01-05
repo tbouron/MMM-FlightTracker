@@ -14,7 +14,7 @@
   "license": "Apache 2.0",
   "dependencies": {
     "csv-parse": "^4.6.5",
-    "mode-s-aircraft-store": "^1.0.1",
+    "mode-s-aircraft-store": "https://github.com/tbouron/mode-s-aircraft-store",
     "mode-s-decoder": "^1.0.1",
     "mode-s-demodulator": "^1.0.1",
     "rtl-sdr": "https://github.com/tbouron/rtl-sdr"
