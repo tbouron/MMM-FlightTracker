@@ -3,33 +3,26 @@
     text-transform: uppercase;
 }
 
-.plane {
-    display: flex;
-    flex-direction: row;
-    margin-bottom: 0.25em;
-    align-items: center;
-}
-.plane > i {
-    flex-shrink: 0;
-    margin-right: 0.35em;
-}
-.plane > div {
-    flex-grow: 1;
+.aircraft:not(:first-child) {
+    margin-top: 0.25em;
 }
 
-.plane-content {
-    display: flex;
-    flex-direction: column;
+.aircraft-heading,
+.aircraft-subheading {
+    max-width: 350px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
-.plane-content > div {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+
+.aircraft-heading > small:not(:first-child),
+.aircraft-metadata > small:not(:first-child) {
+    margin-left: 0.3em;
 }
-.plane-content > div:first-child > span:first-child {
-    margin-right: 0.35em;
+.aircraft-metadata .fas,
+.aircraft-metadata .far {
+    margin-right: 0.1em;
 }
-.plane-content > div:nth-child(2) > span:not(:first-child) {
-    margin-left: 0.35em;
+.aircraft-metadata sup {
+    margin-left: 0.3em;
 }

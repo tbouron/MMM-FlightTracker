@@ -20,12 +20,11 @@ Module.register('MMM-FlightTracker', {
         }, this.config.interval * 1000);
     },
 
-    getScripts: function () {
-        return ['moment.js'];
-    },
-
     getStyles: function () {
-        return ['https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.css', 'MMM-FlightTracker.css'];
+        return [
+            'font-awesome.css',
+            'MMM-FlightTracker.css'
+        ];
     },
 
     socketNotificationReceived: function (id, payload) {
@@ -35,8 +34,11 @@ Module.register('MMM-FlightTracker', {
         }
         if (id === 'SET_AIRCRAFTS') {
             const animate = this.aircrafts.length !== payload.length;
-            this.aircrafts = payload;
-            this.updateDom(animate ? this.config.animationSpeed : undefined);
+            const isUpdated = JSON.stringify(this.aircrafts) !== JSON.stringify(payload);
+            if (isUpdated) {
+                this.aircrafts = payload;
+                this.updateDom(animate ? this.config.animationSpeed : undefined);
+            }
         }
     },
 
@@ -93,48 +95,48 @@ Module.register('MMM-FlightTracker', {
 
         section.append(...aircrafts.map(aircraft => {
             const row = document.createElement('div');
-            row.className = 'plane';
+            row.className = 'aircraft';
 
-            let iconClasses = ['fas'];
-            switch (aircraft.context) {
-                case 'PASSING_BY':
-                    iconClasses.push('fa-plane');
-                    break;
-                case 'LANDING':
-                    iconClasses.push('fa-plane-arrival');
-                    break;
-                case 'TAKING_OFF':
-                    iconClasses.push('fa-plane-departure');
-                    break;
+            const aircraftHeading = document.createElement('div');
+            aircraftHeading.className = 'aircraft-heading medium';
+            aircraftHeading.innerHTML = `<span class="bright">${aircraft.callsign}</span>`;
+            if (aircraft.airline) {
+                aircraftHeading.innerHTML += `&nbsp;<span class="small dimmed airline">/${aircraft.airline}</span>`
             }
-            const icon = document.createElement('i');
-            icon.className = iconClasses.join(' ');
-            row.appendChild(icon);
+            row.appendChild(aircraftHeading);
 
-            const content = document.createElement('div');
-            content.className = 'plane-content';
-            row.appendChild(content);
-
-            const flightHeading = document.createElement('div');
-            flightHeading.className = 'plane-content-heading small';
-            flightHeading.innerHTML = [
-                `<span class="bright">${aircraft.callsign}</span>`,
-                `<span class="dimmed">${aircraft.airline}</span>`
-            ].join('');
-            content.appendChild(flightHeading);
-
-            const flightMetadata = document.createElement('div');
-            flightMetadata.className = 'plane-content-metadata xsmall dimmed';
-            let metadata = [
-                `<span><span class="bright">${Math.floor(this.config.speedUnits === 'metric' ? aircraft.speed*1.852 : aircraft.speed)}</span> ${this.config.speedUnits === 'metric' ? 'km/h' : 'kn'}</span>`,
-                `<span><span class="bright">${Math.floor(this.config.altitudeUnits === 'metric' ? aircraft.altitude/3.2808399 : aircraft.altitude)}</span> ${this.config.altitudeUnits === 'metric' ? 'm' : 'ft'}</span>`,
-                `<span><span class="bright">${Math.floor(aircraft.heading)}</span>°</span>`
-            ];
             if (aircraft.type) {
-                metadata.unshift(`<span class="bright">${aircraft.type}</span>&nbsp–`);
+                const aircraftType = document.createElement('div');
+                aircraftType.className = 'aircraft-subheading xsmall dimmed';
+                aircraftType.innerHTML = aircraft.type;
+                row.appendChild(aircraftType);
             }
-            flightMetadata.innerHTML = metadata.join('');
-            content.appendChild(flightMetadata);
+
+            let altitudeIconId;
+            if (aircraft.verticalRate < 0) {
+                altitudeIconId = 'fa-angle-double-down';
+            } else if (aircraft.verticalRate > 0) {
+                altitudeIconId = 'fa-angle-double-up';
+            } else {
+                altitudeIconId = 'fa-arrows-alt-h';
+            }
+
+            const metadata = [];
+            if (aircraft.speed) {
+                metadata.push(`<small><i class="fas fa-wind dimmed"></i>${Math.floor(this.config.speedUnits === 'metric' ? aircraft.speed*1.852 : aircraft.speed)}<sup>${this.config.speedUnits === 'metric' ? 'km/h' : 'knots'}</sup></small>`);
+            }
+            if (aircraft.altitude) {
+                metadata.push(`<small><i class="fas ${altitudeIconId} dimmed"></i>${Math.floor(this.config.speedUnits === 'metric' ? aircraft.altitude/3.2808399 : aircraft.altitude)}<sup>${this.config.speedUnits === 'metric' ? 'm' : 'ft'}</sup></small>`);
+            }
+            if (aircraft.heading) {
+                metadata.push(`<small><i class="far fa-compass dimmed"></i>${Math.floor(aircraft.heading)}<sup>○</sup></small>`);
+            }
+            if (metadata.length > 0) {
+                const aircraftMetadata = document.createElement('div');
+                aircraftMetadata.className = 'aircraft-metadata medium normal';
+                aircraftMetadata.innerHTML = metadata.join('');
+                row.appendChild(aircraftMetadata);
+            }
 
             return row;
         }));
