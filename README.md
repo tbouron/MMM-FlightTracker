@@ -4,6 +4,7 @@
 real time information about gather from nearby planes transponders. The data is received over radio signals, coming from
 nearby planes that is gather through an [ADS-B receiver](https://en.wikipedia.org/wiki/Automatic_dependent_surveillance_%E2%80%93_broadcast)
 (this is how [FlightRadar24](https://www.flightradar24.com/) gets most of its data)
+connected directly to server running MagicMirror, or over a TCP stream of SBS1 messages.
 
 ![Screenshot of the Flight Tracker module - Passing by](./screenshot-passing-by.png)
 
@@ -27,8 +28,10 @@ Debian based Linux distros:
 apt-get install librtlsdr-dev
 ```
 
-It also requires to have an ADS-B receiver plugged in to the server running MagicMirror. There are inexpensive to buy
-and you can find [a lot of them on Amazon](https://www.amazon.co.uk/s?k=ads-b&ref=nb_sb_noss_2).
+It also requires to have either:
+- a ADS-B receiver plugged in to the server running MagicMirror. There are inexpensive to buy
+  and you can find [a lot of them on Amazon](https://www.amazon.co.uk/s?k=ads-b&ref=nb_sb_noss_2).
+- a feeder from FlightAware or FlightRadar24 with [dump1090 configured to expose SBS1 messages over TCP](https://github.com/antirez/dump1090#port-30003).
 
 ### Setup
 
@@ -61,6 +64,11 @@ then add the module to your MagicMirror's configuration. Here is an example:
                 passingByThreshold: Number,
                 speedUnits: 'metric|imperial',
                 altitudeUnits: 'metric|imperial',
+                client: {
+                    mode: 'rtlsdr|network',
+                    host: 'acme.com',
+                    port: 30003
+                }
             }
         }
     ]
@@ -76,3 +84,4 @@ then add the module to your MagicMirror's configuration. Here is an example:
 | passingByThreshold | The threshold altitude to determine if a plane is "at the window" or just "passing by". If no set (or negative) then all planes will be treated the same way | -1 | No |
 | speedUnits | The unit to use for speed. By default, it will use the unit defined at the global config. Can be `metric` or `imperial`. | Global unit config | Yes |
 | altitudeUnits | The unit to use for altitude. By default, it will use the unit defined at the global config. Can be `metric` or `imperial`. | Global unit config | Yes |
+| client | The configuration for the ADS-B client. By default, the mode is set to `rtlsdr` (not other options are needed in this mode). In case of `network` mode, options `host` and `port` are required. | `{mode: 'rtlsdr'}` | No |
