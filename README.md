@@ -15,7 +15,19 @@ nearby planes that is gather through an [ADS-B receiver](https://en.wikipedia.or
 
 ### Prerequisites
 
-This module requires to have an ADS-B receiver plugged in to the server running MagicMirror. There are inexpensive to buy
+This module requires that you have [librtlsdr](https://github.com/steve-m/librtlsdr) installed on your system. 
+
+Homebrew (macOS):
+```
+brew install librtlsdr
+```
+
+Debian based Linux distros:
+```
+apt-get install librtlsdr-dev
+```
+
+It also requires to have an ADS-B receiver plugged in to the server running MagicMirror. There are inexpensive to buy
 and you can find [a lot of them on Amazon](https://www.amazon.co.uk/s?k=ads-b&ref=nb_sb_noss_2).
 
 ### Setup
