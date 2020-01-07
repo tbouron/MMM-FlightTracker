@@ -6,7 +6,12 @@ Module.register('MMM-FlightTracker', {
         passingByThreshold: -1,
         latLng: [],
         altitudeUnits: config.units,
-        speedUnits: config.units
+        speedUnits: config.units,
+        showAirline: true,
+        showType: true,
+        showSpeed: true,
+        showAltitude: true,
+        showHeading: true
     },
 
     aircrafts: [],
@@ -100,12 +105,12 @@ Module.register('MMM-FlightTracker', {
             const aircraftHeading = document.createElement('div');
             aircraftHeading.className = 'aircraft-heading medium';
             aircraftHeading.innerHTML = `<span class="bright">${aircraft.callsign}</span>`;
-            if (aircraft.airline) {
+            if (this.config.showAirline && aircraft.airline) {
                 aircraftHeading.innerHTML += `&nbsp;<span class="small dimmed airline">/${aircraft.airline}</span>`
             }
             row.appendChild(aircraftHeading);
 
-            if (aircraft.type) {
+            if (this.config.showType && aircraft.type) {
                 const aircraftType = document.createElement('div');
                 aircraftType.className = 'aircraft-subheading xsmall dimmed';
                 aircraftType.innerHTML = aircraft.type;
@@ -122,13 +127,13 @@ Module.register('MMM-FlightTracker', {
             }
 
             const metadata = [];
-            if (aircraft.speed) {
+            if (this.config.showSpeed && aircraft.speed) {
                 metadata.push(`<small><i class="fas fa-wind dimmed"></i>${Math.floor(this.config.speedUnits === 'metric' ? aircraft.speed*1.852 : aircraft.speed)}<sup>${this.config.speedUnits === 'metric' ? 'km/h' : 'knots'}</sup></small>`);
             }
-            if (aircraft.altitude) {
+            if (this.config.showAltitude && aircraft.altitude) {
                 metadata.push(`<small><i class="fas ${altitudeIconId} dimmed"></i>${Math.floor(this.config.speedUnits === 'metric' ? aircraft.altitude/3.2808399 : aircraft.altitude)}<sup>${this.config.speedUnits === 'metric' ? 'm' : 'ft'}</sup></small>`);
             }
-            if (aircraft.heading) {
+            if (this.config.showHeading && aircraft.heading) {
                 metadata.push(`<small><i class="far fa-compass dimmed"></i>${Math.floor(aircraft.heading)}<sup>○</sup></small>`);
             }
             if (metadata.length > 0) {
