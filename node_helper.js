@@ -136,32 +136,7 @@ module.exports = NodeHelper.create({
                     aircraft.type = plane.type;
                 }
 
-                // Convert altitude
-                const altitude = aircraft.altitude * (aircraft.unit === Decoder.UNIT_METERS ? 3.2808399 : 1);
-
-                // Find out context
-                if (!aircraft.hasOwnProperty('context')) {
-                    if (!config.passingByThreshold || config.passingByThreshold <= 0) {
-                        aircraft.context = 'PASSING_BY';
-                    } else if (config.passingByThreshold > 0 && altitude > config.passingByThreshold) {
-                        aircraft.context = 'PASSING_BY';
-                    } else if (config.passingByThreshold > 0 && altitude < config.passingByThreshold) {
-                        if (!this.altitudes.hasOwnProperty(aircraft.icao)) {
-                            this.altitudes[aircraft.icao] = altitude;
-                        } else if (this.altitudes[aircraft.icao] > altitude) {
-                            aircraft.context = 'LANDING';
-                            this.altitudes[aircraft.icao] = undefined;
-                        } else if (this.altitudes[aircraft.icao] < altitude) {
-                            aircraft.context = 'TAKING_OFF';
-                            this.altitudes[aircraft.icao] = undefined;
-                        }
-                    }
-                }
-
-                return {
-                    ...aircraft,
-                    altitude
-                };
+                return aircraft;
             }) || [];
 
         this.sendSocketNotification('SET_AIRCRAFTS', aircrafts);

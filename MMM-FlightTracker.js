@@ -77,11 +77,11 @@ Module.register('MMM-FlightTracker', {
         }
 
         if (this.config.passingByThreshold > 0) {
-            const windowPlanes = this.aircrafts.filter(plane => plane.context !== 'PASSING_BY');
+            const windowPlanes = this.aircrafts.filter(aircraft => aircraft.altitude * (aircraft.unit === 0 && this.config.altitudeUnits === 'metric' ? 0.3040 : 1) <= this.config.passingByThreshold);
             if (windowPlanes.length > 0) {
                 wrapper.appendChild(this.getSection(windowPlanes, this.translate('At the window')));
             }
-            const passingByPlanes = this.aircrafts.filter(plane => plane.context === 'PASSING_BY');
+            const passingByPlanes = this.aircrafts.filter(aircraft => aircraft.altitude * (aircraft.unit === 0 && this.config.altitudeUnits === 'metric' ? 0.3040 : 1) > this.config.passingByThreshold);
             if (passingByPlanes.length > 0) {
                 wrapper.appendChild(this.getSection(passingByPlanes, this.translate('Passing by')));
             }
@@ -131,7 +131,8 @@ Module.register('MMM-FlightTracker', {
                 metadata.push(`<small><i class="fas fa-wind dimmed"></i>${Math.floor(this.config.speedUnits === 'metric' ? aircraft.speed*1.852 : aircraft.speed)}<sup>${this.config.speedUnits === 'metric' ? 'km/h' : 'knots'}</sup></small>`);
             }
             if (this.config.showAltitude && aircraft.altitude) {
-                metadata.push(`<small><i class="fas ${altitudeIconId} dimmed"></i>${Math.floor(this.config.speedUnits === 'metric' ? aircraft.altitude/3.2808399 : aircraft.altitude)}<sup>${this.config.speedUnits === 'metric' ? 'm' : 'ft'}</sup></small>`);
+                const altitude = Math.floor(aircraft.altitude * (aircraft.unit === 0 && this.config.altitudeUnits === 'metric' ? 0.3040 : 1));
+                metadata.push(`<small><i class="fas ${altitudeIconId} dimmed"></i>${altitude}<sup>${this.config.altitudeUnits === 'metric' ? 'm' : 'ft'}</sup></small>`);
             }
             if (this.config.showHeading && aircraft.heading) {
                 metadata.push(`<small><i class="far fa-compass dimmed"></i>${Math.floor(aircraft.heading)}<sup>○</sup></small>`);
