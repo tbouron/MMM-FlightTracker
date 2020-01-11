@@ -40,6 +40,7 @@ Clone this module into your MagicMirror's `modules` directory and install the de
 ```sh
 cd modules
 git clone https://github.com/tbouron/MMM-FlightTracker
+cd MMM-FlightTracker
 npm i
 ```
 
