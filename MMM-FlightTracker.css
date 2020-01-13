@@ -15,6 +15,16 @@
     text-overflow: ellipsis;
 }
 
+.aircraft-subheading > span:not(:first-child) {
+    margin-left: 0.5em;
+}
+.aircraft-subheading .fas {
+    margin-right: 0.1em;
+}
+.aircraft-subheading sup {
+    margin-left: 0.3em;
+}
+
 .aircraft-heading > small:not(:first-child),
 .aircraft-metadata > small:not(:first-child) {
     margin-left: 0.3em;
