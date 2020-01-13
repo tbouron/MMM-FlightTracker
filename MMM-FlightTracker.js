@@ -110,11 +110,26 @@ Module.register('MMM-FlightTracker', {
             }
             row.appendChild(aircraftHeading);
 
+            const altitude = aircraft.altitude
+                ? Math.floor(aircraft.altitude * (aircraft.unit === 0 && this.config.altitudeUnits === 'metric' ? 0.3040 : 1))
+                : null;
+
+            const subHeading = [];
             if (this.config.showType && aircraft.type) {
-                const aircraftType = document.createElement('div');
-                aircraftType.className = 'aircraft-subheading xsmall dimmed';
-                aircraftType.innerHTML = aircraft.type;
-                row.appendChild(aircraftType);
+                subHeading.push(`<span>${aircraft.type}</span>`);
+            }
+            if (this.config.latLng && altitude < this.config.passingByThreshold && aircraft.distance) {
+                const distance = aircraft.distance * (this.config.altitudeUnits === 'metric' ? 1 : 3.28084);
+                subHeading.push(`<span><i class="fas fa-location-arrow dimmed"></i>${Math.floor(distance)}<sup>${this.config.altitudeUnits === 'metric' ? 'm' : 'ft'}</sup></span>`);
+                if (aircraft.direction) {
+                    subHeading.push(`<span>${this.cardinalDirection(aircraft.direction)}</span>`);
+                }
+            }
+            if (subHeading.length > 0) {
+                const aircraftSubHeading = document.createElement('div');
+                aircraftSubHeading.className = 'aircraft-subheading xsmall dimmed';
+                aircraftSubHeading.innerHTML = subHeading.join('');
+                row.appendChild(aircraftSubHeading);
             }
 
             let altitudeIconId;
@@ -131,7 +146,6 @@ Module.register('MMM-FlightTracker', {
                 metadata.push(`<small><i class="fas fa-wind dimmed"></i>${Math.floor(this.config.speedUnits === 'metric' ? aircraft.speed*1.852 : aircraft.speed)}<sup>${this.config.speedUnits === 'metric' ? 'km/h' : 'knots'}</sup></small>`);
             }
             if (this.config.showAltitude && aircraft.altitude) {
-                const altitude = Math.floor(aircraft.altitude * (aircraft.unit === 0 && this.config.altitudeUnits === 'metric' ? 0.3040 : 1));
                 metadata.push(`<small><i class="fas ${altitudeIconId} dimmed"></i>${altitude}<sup>${this.config.altitudeUnits === 'metric' ? 'm' : 'ft'}</sup></small>`);
             }
             if (this.config.showHeading && aircraft.heading) {
@@ -148,6 +162,43 @@ Module.register('MMM-FlightTracker', {
         }));
 
         return section;
+    },
+
+    cardinalDirection(direction) {
+        if (direction> 11.25 && direction<= 33.75){
+            return "NNE";
+        } else if (direction> 33.75 && direction<= 56.25) {
+            return "NE";
+        } else if (direction> 56.25 && direction<= 78.75) {
+            return "ENE";
+        } else if (direction> 78.75 && direction<= 101.25) {
+            return "E";
+        } else if (direction> 101.25 && direction<= 123.75) {
+            return "ESE";
+        } else if (direction> 123.75 && direction<= 146.25) {
+            return "SE";
+        } else if (direction> 146.25 && direction<= 168.75) {
+            return "SSE";
+        } else if (direction> 168.75 && direction<= 191.25) {
+            return "S";
+        } else if (direction> 191.25 && direction<= 213.75) {
+            return "SSW";
+        } else if (direction> 213.75 && direction<= 236.25) {
+            return "SW";
+        } else if (direction> 236.25 && direction<= 258.75) {
+            return "WSW";
+        } else if (direction> 258.75 && direction<= 281.25) {
+            return "W";
+        } else if (direction> 281.25 && direction<= 303.75) {
+            return "WNW";
+        } else if (direction> 303.75 && direction<= 326.25) {
+            return "NW";
+        } else if (direction> 326.25 && direction<= 348.75) {
+            return "NNW";
+        } else {
+            return "N";
+        }
     }
+
 });
 

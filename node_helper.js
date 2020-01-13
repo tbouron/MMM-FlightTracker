@@ -136,9 +136,39 @@ module.exports = NodeHelper.create({
                     aircraft.type = plane.type;
                 }
 
+                // Find out plane distance and direction from base coordinates
+                if (aircraft.lat && aircraft.lng && config.latLng && config.latLng instanceof Array) {
+                    const R = 6371e3; // metres
+                    const radLat1 = this.toRadians(config.latLng[0]);
+                    const radLat2 = this.toRadians(aircraft.lat);
+                    const deltaLat = this.toRadians(aircraft.lat - config.latLng[0]);
+                    const deltaLng = this.toRadians(aircraft.lng - config.latLng[1]);
+
+                    const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+                        Math.cos(radLat1) * Math.cos(radLat2) *
+                        Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
+                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+                    aircraft.distance = R * c;
+
+                    const y = Math.sin(deltaLng) * Math.cos(radLat2);
+                    const x = Math.cos(radLat1) * Math.sin(radLat2) -
+                        Math.sin(radLat1) * Math.cos(radLat2) * Math.cos(deltaLng);
+                    const bearing = this.toDegree(Math.atan2(y, x));
+                    aircraft.direction = (bearing + 360) % 360;
+                }
+
                 return aircraft;
             }) || [];
 
         this.sendSocketNotification('SET_AIRCRAFTS', aircrafts);
+    },
+
+    toRadians: function(n) {
+        return n * Math.PI / 180;
+    },
+
+    toDegree: function(n) {
+        return n * 180 / Math.PI;
     }
 });
