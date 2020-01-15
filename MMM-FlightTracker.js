@@ -18,7 +18,7 @@ Module.register('MMM-FlightTracker', {
     isConnected: null,
 
     start: function() {
-        this.sendSocketNotification('START_TRACKING', this.config.client);
+        this.sendSocketNotification('START_TRACKING', this.config);
         this.trackPlanes();
         setInterval(() => {
             this.trackPlanes();

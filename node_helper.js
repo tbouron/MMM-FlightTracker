@@ -81,14 +81,21 @@ module.exports = NodeHelper.create({
     },
 
     startTracking: function(config) {
-        if (this.clients.includes(JSON.stringify(config))) {
+        if (this.clients.includes(JSON.stringify(config.client))) {
             console.log('An instance of ADS-B client with the same configuration already exists. Skipping ...');
             this.isConnected = true;
             return;
         }
 
         console.log('Initialising ADS-B client ...');
-        this.clients.push(JSON.stringify(config));
+        this.clients.push(JSON.stringify(config.client));
+
+        if (config.hasOwnProperty('orderBy') && config.orderBy.split(':').length !== 2) {
+            console.warn('The format of "orderBy" config is not valid, it will be ignored. Please check https://github.com/tbouron/MMM-FlightTracker#configuration-options for more details.');
+        }
+        if (config.hasOwnProperty('orderBy') && config.orderBy.startsWith('distance') && !config.hasOwnProperty('latLng')) {
+            console.warn('Requested "orderBy" by "distance", but the "latLng" config is missing so no planes will be displayed! Please check https://github.com/tbouron/MMM-FlightTracker#configuration-options for more details.')
+        }
 
         try {
             this.adsb.on('socket-closed', () => {
@@ -97,7 +104,7 @@ module.exports = NodeHelper.create({
             }).on('socket-opened', () => {
                 this.isConnected = true;
                 this.sendSocketNotification('SET_IS_CONNECTED', this.isConnected);
-            }).start(config);
+            }).start(config.client);
             this.isConnected = true;
         } catch (e) {
             console.error('Failed to initialised ADS-B client', e);
@@ -107,7 +114,7 @@ module.exports = NodeHelper.create({
     },
 
     trackAircrafts: function(config) {
-        const aircrafts = this.adsb.getStore().getAircrafts()
+        let aircrafts = this.adsb.getStore().getAircrafts()
             .filter(aircraft => aircraft.callsign)
             .map(aircraft => {
                 const icao = parseInt(aircraft.icao, 10).toString(16);
@@ -159,7 +166,34 @@ module.exports = NodeHelper.create({
                 }
 
                 return aircraft;
-            }) || [];
+            });
+
+        const orderBy = config.orderBy ? config.orderBy.split(':') : [];
+
+        if (orderBy.length === 2) {
+            const property = orderBy[0] === 'age' ? 'count' : orderBy[0];
+            const multiplicator = orderBy[1] === 'asc' ? 1 : -1;
+
+            aircrafts = aircrafts
+                .filter(aircraft => aircraft.hasOwnProperty(property))
+                .sort((a, b) => {
+                    const valueA = a[property];
+                    const valueB = b[property];
+                    if (typeof valueA === 'string' && typeof valueB === 'string') {
+                        return valueA.toLowerCase() < valueB.toLowerCase()
+                            ? -1 * multiplicator
+                            : valueA.toLowerCase() > valueB.toLowerCase() ? multiplicator : 0
+                    }
+                    if (typeof valueA === 'number' && typeof valueB === 'number') {
+                        return (valueA - valueB) * multiplicator;
+                    }
+                    return 0;
+                });
+        }
+
+        if (config.hasOwnProperty('limit') && config.limit > 0 && aircrafts.length > config.limit) {
+            aircrafts = aircrafts.slice(0, config.limit);
+        }
 
         this.sendSocketNotification('SET_AIRCRAFTS', aircrafts);
     },

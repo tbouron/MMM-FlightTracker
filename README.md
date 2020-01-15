@@ -63,6 +63,8 @@ then add the module to your MagicMirror's configuration. Here is an example:
                 interval: Number,
                 animationSpeed: Number,
                 passingByThreshold: Number,
+                orderBy: '(age|altitude|speed|distance):(asc|desc)',
+                limit: Number,
                 speedUnits: 'metric|imperial',
                 altitudeUnits: 'metric|imperial',
                 latLng: [55.9411885, -3.2753781],
@@ -86,15 +88,17 @@ then add the module to your MagicMirror's configuration. Here is an example:
 
 | Configuration key | Description | Default | Required |
 | --- | --- | --- | --- |
-| interval | Interval to check if new planes are nearby. This value is in _seconds_ | `1` | Yes |
-| animationSpeed | Animation speed to display/hide the module when planes come and go. This value is in _milliseconds_ | `1000` | No |
-| passingByThreshold | The threshold altitude to determine if a plane is "at the window" or just "passing by". If no set (or negative) then all planes will be treated the same way | `-1` | No |
-| latLng | Your current coordinates, as an `Array` of `Number`. E.g. `[55.9411885, -3.2753781]`.<br/><br/>When defined, the distance and bearing, from your coordinates to the plane, will be displayed if available (requires the plane's coordinates to be known) | `undefined` | No |
+| interval | Interval to check if new planes are nearby. This value is in _seconds_. | `1` | Yes |
+| animationSpeed | Animation speed to display/hide the module when planes come and go. This value is in _milliseconds_. | `1000` | No |
+| passingByThreshold | The threshold altitude to determine if a plane is "at the window" or just "passing by". If no set (or negative) then all planes will be treated the same way. | `-1` | No |
+| latLng | Your current coordinates, as an `Array` of `Number`. E.g. `[55.9411885, -3.2753781]`.<br/><br/>When defined, the distance and bearing, from your coordinates to the plane, will be displayed if available (requires the plane's coordinates to be known). | `undefined` | No |
+| orderBy | The property to order the list of planes by. The syntax for this configuration option is as follow `<property>:<order>`.<br/><br/>Valid values for `<property>` are:<ul><li>`age` (e.g. most recent or older plane tracked)</li><li>`altitude`</li><li>`speed`</li><li>`distance` (available only if you supply `latLng` configuration and the plane broadcast its coordinates)</li></ul><br/>Valid values for `<order>` are: `asc` or `desc` | `undefined` | No |
+| limit | Limit the number of planes to display. If not set (or negative) then all tracked planes are displayed. | -1 | No |
 | speedUnits | The unit to use for speed. By default, it will use the unit defined at the global config. Can be `metric` or `imperial`. | Global unit config | No |
 | altitudeUnits | The unit to use for altitude and distance to the plane (if `latLng` is defined). By default, it will use the unit defined at the global config. Can be `metric` or `imperial`. | Global unit config | No |
-| showAirline | Whether or not show the airline for each flight, if available | `true` | No |
-| showType | Whether or not show the aircraft type for each flight, if available | `true` | No |
-| showSpeed | Whether or not show the aircraft speed for each flight, if available | `true` | No |
-| showAltitude | Whether or not show the aircraft altitude for each flight, if available | `true` | No |
-| showHeading | Whether or not show the aircraft heading for each flight, if available | `true` | No |
+| showAirline | Whether or not show the airline for each flight, if available. | `true` | No |
+| showType | Whether or not show the aircraft type for each flight, if available. | `true` | No |
+| showSpeed | Whether or not show the aircraft speed for each flight, if available. | `true` | No |
+| showAltitude | Whether or not show the aircraft altitude for each flight, if available. | `true` | No |
+| showHeading | Whether or not show the aircraft heading for each flight, if available. | `true` | No |
 | client | The configuration for the ADS-B client. By default, the mode is set to `rtlsdr` (not other options are needed in this mode). In case of `network` mode, options `host` and `port` are required. | `{mode: 'rtlsdr'}` | No |
