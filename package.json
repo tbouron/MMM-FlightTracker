@@ -1,6 +1,6 @@
 {
   "name": "MMM-FlightTracker",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "MagicMirror module that uses ADS-B systems to track nearby planes",
   "main": "MMM-FlightTracker.js",
   "scripts": {
