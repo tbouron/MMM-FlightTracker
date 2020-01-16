@@ -132,20 +132,35 @@ Module.register('MMM-FlightTracker', {
                 row.appendChild(aircraftSubHeading);
             }
 
-            let altitudeIconId;
-            if (aircraft.verticalRate < 0) {
-                altitudeIconId = 'fa-angle-double-down';
-            } else if (aircraft.verticalRate > 0) {
-                altitudeIconId = 'fa-angle-double-up';
-            } else {
-                altitudeIconId = 'fa-arrows-alt-h';
-            }
-
             const metadata = [];
             if (this.config.showSpeed && aircraft.speed) {
-                metadata.push(`<small><i class="fas fa-wind dimmed"></i>${Math.floor(this.config.speedUnits === 'metric' ? aircraft.speed*1.852 : aircraft.speed)}<sup>${this.config.speedUnits === 'metric' ? 'km/h' : 'knots'}</sup></small>`);
+                let speed;
+                let speedUnits;
+                switch (this.config.speedUnits) {
+                    case 'metric':
+                        speed = aircraft.speed * 1.8520008892119;
+                        speedUnits = 'km/h';
+                        break;
+                    case 'imperial':
+                        speed = aircraft.speed * 1.15078;
+                        speedUnits = 'mph';
+                        break;
+                    case 'knots':
+                    default:
+                        speed = aircraft.speed;
+                        speedUnits = this.translate('knots');
+                }
+                metadata.push(`<small><i class="fas fa-wind dimmed"></i>${Math.floor(speed)}<sup>${speedUnits}</sup></small>`);
             }
             if (this.config.showAltitude && aircraft.altitude) {
+                let altitudeIconId;
+                if (aircraft.verticalRate < 0) {
+                    altitudeIconId = 'fa-angle-double-down';
+                } else if (aircraft.verticalRate > 0) {
+                    altitudeIconId = 'fa-angle-double-up';
+                } else {
+                    altitudeIconId = 'fa-arrows-alt-h';
+                }
                 metadata.push(`<small><i class="fas ${altitudeIconId} dimmed"></i>${altitude}<sup>${this.config.altitudeUnits === 'metric' ? 'm' : 'ft'}</sup></small>`);
             }
             if (this.config.showHeading && aircraft.heading) {
