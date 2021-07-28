@@ -132,6 +132,9 @@ module.exports = NodeHelper.create({
                     } else {
                         airlineName.push('Unknown');
                     }
+                    if (!/\d/g.test(aircraft.callsign)) {
+                        airlineName = ['Private'];
+                    }
                     if (plane && plane.operator) {
                         airlineName = [plane.operator];
                     }
