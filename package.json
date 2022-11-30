@@ -7,19 +7,17 @@
     "data": "npm run data-airlines && npm run data-aircrafts",
     "data-airlines": "mkdir -p data && curl -o data/airlines.csv https://raw.githubusercontent.com/jpatokal/openflights/master/data/airlines.dat",
     "data-aircrafts": "mkdir -p data && curl -o data/aircrafts.zip https://junzis.com/adb/download && unzip data/aircrafts.zip aircraft_db.csv -d data && mv data/aircraft_db.csv data/aircrafts.csv && rm -rf data/aircrafts.zip",
-    "postinstall": "npx electron-rebuild",
+    "postinstall": "./node_modules/.bin/MagicMirror-rebuild",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Thomas Bouron <tbouron@gmail.com>",
   "license": "Apache 2.0",
   "dependencies": {
     "csv-parse": "^4.6.5",
+    "magicmirror-rebuild": "^1.0.5",
     "mode-s-aircraft-store": "https://github.com/tbouron/mode-s-aircraft-store",
     "mode-s-decoder": "^1.0.1",
     "mode-s-demodulator": "^1.0.1",
     "rtl-sdr": "https://github.com/tbouron/rtl-sdr"
-  },
-  "devDependencies": {
-    "electron-rebuild": "^1.8.6"
   }
 }
