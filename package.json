@@ -14,7 +14,7 @@
   "license": "Apache 2.0",
   "dependencies": {
     "csv-parse": "^4.6.5",
-    "magicmirror-rebuild": "^1.0.5",
+    "magicmirror-rebuild": "^1.0.7",
     "mode-s-aircraft-store": "https://github.com/tbouron/mode-s-aircraft-store",
     "mode-s-decoder": "^1.0.1",
     "mode-s-demodulator": "^1.0.1",
