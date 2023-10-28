@@ -1,7 +1,7 @@
 {
   "name": "MMM-FlightTracker",
   "version": "1.2.1",
-  "description": "MagicMirror module that uses ADS-B systems to track nearby planes",
+  "description": "MagicMirror² module that uses ADS-B systems to track nearby planes",
   "repository": {
     "type": "git",
     "url": "https://github.com/tbouron/MMM-FlightTracker"
