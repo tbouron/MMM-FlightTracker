@@ -7,7 +7,6 @@
     "data": "npm run data-airlines && npm run data-aircrafts",
     "data-airlines": "mkdir -p data && curl -o data/airlines.csv https://raw.githubusercontent.com/jpatokal/openflights/master/data/airlines.dat",
     "data-aircrafts": "mkdir -p data && curl -o data/aircrafts.zip https://junzis.com/adb/download && unzip data/aircrafts.zip aircraft_db.csv -d data && mv data/aircraft_db.csv data/aircrafts.csv && rm -rf data/aircrafts.zip",
-    "postinstall": "./node_modules/.bin/MagicMirror-rebuild",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Thomas Bouron <tbouron@gmail.com>",
