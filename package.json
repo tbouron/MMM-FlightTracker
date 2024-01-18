@@ -1,7 +1,11 @@
 {
   "name": "MMM-FlightTracker",
   "version": "1.2.1",
-  "description": "MagicMirror module that uses ADS-B systems to track nearby planes",
+  "description": "MagicMirror² module that uses ADS-B systems to track nearby planes",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tbouron/MMM-FlightTracker"
+  },
   "main": "MMM-FlightTracker.js",
   "scripts": {
     "data": "npm run data-airlines && npm run data-aircrafts",
@@ -11,7 +15,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Thomas Bouron <tbouron@gmail.com>",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
   "dependencies": {
     "csv-parse": "^4.6.5",
     "magicmirror-rebuild": "^1.0.5",

@@ -1,10 +1,10 @@
-# MagicMirror Module: Flight Tracker
+# MagicMirror² Module: Flight Tracker
 
-`MMM-FlightTracker` is a module for [MagicMirror](https://github.com/MichMich/MagicMirror) that allows you to display
+`MMM-FlightTracker` is a module for [MagicMirror²](https://github.com/MichMich/MagicMirror) that allows you to display
 real time information about gather from nearby planes transponders. The data is received over radio signals, coming from
 nearby planes that is gather through an [ADS-B receiver](https://en.wikipedia.org/wiki/Automatic_dependent_surveillance_%E2%80%93_broadcast)
 (this is how [FlightRadar24](https://www.flightradar24.com/) gets most of its data)
-connected directly to server running MagicMirror, or over a TCP stream of SBS1 messages.
+connected directly to server running MagicMirror², or over a TCP stream of SBS1 messages.
 
 ![Screenshot of the Flight Tracker module - Passing by](./screenshot-passing-by.png)
 
@@ -29,7 +29,7 @@ apt-get install librtlsdr-dev
 ```
 
 It also requires to have either:
-- a ADS-B receiver plugged in to the server running MagicMirror. There are inexpensive to buy
+- a ADS-B receiver plugged in to the server running MagicMirror². There are inexpensive to buy
   and you can find [a lot of them on Amazon](https://www.amazon.co.uk/s?k=ads-b&ref=nb_sb_noss_2).
 - a feeder from FlightAware or FlightRadar24 with [dump1090 configured to expose SBS1 messages over TCP](https://github.com/antirez/dump1090#port-30003).
 
@@ -44,7 +44,7 @@ cd MMM-FlightTracker
 npm i
 ```
 
-then add the module to your MagicMirror's configuration. Here is an example:
+Then add the module to your MagicMirror's configuration. Here is an example:
 
 ```javascript
 /* MagicMirror/config/config.js */
